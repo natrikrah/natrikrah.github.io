@@ -1,1 +1,0 @@
-# natrikrah.github.io
