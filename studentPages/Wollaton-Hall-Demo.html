@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<head>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<title>Hello, world!</title>
+	<!-- include three.js library -->
+	<script src='../../js/three.js'></script>
+	<script src='../../js/OBJLoader.js'></script>
+	<script src='../../js/MTLLoader.js'></script>
+	<script src='../../js/GLTF2Loader.js'></script>
+	<script src='../../js/FBXLoader.js'></script>
+	<!-- include jsartookit -->
+	<script src="../../jsartoolkit5/artoolkit.min.js"></script>
+	<script src="../../jsartoolkit5/artoolkit.api.js"></script>
+	<!-- include threex.artoolkit -->
+	<script src="../../threex/threex-artoolkitsource.js"></script>
+	<script src="../../threex/threex-artoolkitcontext.js"></script>
+	<script src="../../threex/threex-arbasecontrols.js"></script>
+	<script src="../../threex/threex-armarkercontrols.js"></script>
+	
+</head>
+
+<div style="position: absolute; bottom: 0; width: 100%; background-color: white;">
+	<p> DESCRIPTION</p>
+	<button type="button">Continue</button> 
+  </div>
+
+
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+
+<audio src="../../ttos/intro.mp3" id="introAudio"></audio>
+
+<script>
+	
+	var scene, camera, renderer;
+	var clock = new THREE.Clock();
+	var arToolkitSource, arToolkitContext;
+	
+	
+	var huntRoot;
+	var huntMesh;
+	
+	var puzzleRoot;
+	var puzzleMesh;
+	
+	var quizRoot;
+	var quizMesh;
+
+
+	var tigerRoot;
+	var tigerMesh, mesh1;
+
+	var dogRoot;
+	var dogMesh, mesh3;
+	
+	var name = 'Kirtan';
+	var pElement;
+	var mixer;
+
+	initialize();
+	animate();
+	
+	function initialize()
+	{
+	
+		//name = prompt("Enter Your Name:");
+
+		//
+		pElement = document.querySelector('p');
+		pElement.textContent = 'Hello ' + name + ', Welcome to Wollaton Hall: Enigma Estate. Scan a .Game. marker to begin! ';
+		//
+		//document.getElementById("introAudio").play();
+
+
+		scene = new THREE.Scene();
+	
+		let ambientLight = new THREE.AmbientLight( 0xcccccc, 1.0 );
+		scene.add( ambientLight );
+					
+		camera = new THREE.Camera();
+		scene.add(camera);
+	
+		renderer = new THREE.WebGLRenderer({
+			antialias : true,
+			alpha: true
+		});
+		renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+		renderer.setSize( 640, 480 );
+		renderer.domElement.style.position = 'absolute'
+		renderer.domElement.style.top = '0px'
+		renderer.domElement.style.left = '0px'
+		document.body.appendChild( renderer.domElement );
+
+
+		
+		////////////////////////////////////////////////////////////
+		// setup arToolkitSource
+		////////////////////////////////////////////////////////////
+	
+		arToolkitSource = new THREEx.ArToolkitSource({
+			sourceType : 'webcam',
+		});
+	
+		function onResize()
+		{
+			arToolkitSource.onResize()	
+			arToolkitSource.copySizeTo(renderer.domElement)	
+			if ( arToolkitContext.arController !== null )
+			{
+				arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+			}	
+		}
+
+		arToolkitSource.init(function onReady(){
+			onResize()
+		});
+		window.addEventListener('resize', function(){
+			onResize()
+		});
+		
+		////////////////////////////////////////////////////////////
+		// setup arToolkitContext
+		////////////////////////////////////////////////////////////	
+	
+		arToolkitContext = new THREEx.ArToolkitContext({
+			cameraParametersUrl: '../../data/camera_para.dat',
+			detectionMode: 'mono'
+		});
+			arToolkitContext.init( function onCompleted(){
+			camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+		});
+	
+		////////////////////////////////////////////////////////////
+		// setup markerRoots
+		////////////////////////////////////////////////////////////
+//TIGER
+		tigerRoot = new THREE.Group();
+		scene.add(tigerRoot);
+		let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, tigerRoot, {
+			type: 'pattern', patternUrl: "../../data/hiro.patt",
+		})
+		let geometry1 = new THREE.PlaneBufferGeometry(1,1, 4,4);
+		let loader = new THREE.TextureLoader();
+		let texture = loader.load( '../../images/grass.jpg', render );
+		let material1 = new THREE.MeshBasicMaterial( { map: texture } );
+		mesh1 = new THREE.Mesh( geometry1, material1 );
+		mesh1.rotation.x = -Math.PI/2;
+		//tigerRoot.add( mesh1 );
+		new THREE.MTLLoader()
+			.setPath( '../../models/tiger/' )
+			.load( 'tiger.mtl', function ( materials ) {
+				materials.preload();
+				new THREE.OBJLoader()
+					.setMaterials( materials )
+					.setPath( '../../models/tiger/' )
+					.load( 'tiger.obj', function ( group ) {
+						tigerMesh = group.children[0];
+						tigerMesh.material.side = THREE.DoubleSide;
+						tigerMesh.position.y = 1;
+						tigerMesh.scale.set(0.25,0.25,0.25);
+						//mesh0.rotation.y = Math.PI/2;
+						tigerMesh.rotation.x = -Math.PI/2;
+						tigerRoot.add(tigerMesh);
+					}, onProgress, onError );
+			});
+//TIGER	
+//DOG
+	/*	dogRoot = new THREE.Group();
+		scene.add(dogRoot);
+		let markerControls2 = new THREEx.ArMarkerControls(arToolkitContext, dogRoot, {
+			type: 'pattern', patternUrl: "../../data/kanji.patt",
+		})
+		//dogRoot.add( mesh1 );
+		new THREE.MTLLoader()
+			.setPath( '../../models/puppy/' )
+			.load( 'puppy.mtl', function ( materials ) {
+				materials.preload();
+				new THREE.OBJLoader()
+					.setMaterials( materials )
+					.setPath( '../../models/puppy/' )
+					.load( 'puppy.obj', function ( group ) {
+						dogMesh = group.children[0];
+						dogMesh.material.side = THREE.DoubleSide;
+						dogMesh.position.y = 1;
+						dogMesh.scale.set(1.25,1.25,1.25);
+						dogMesh.rotation.y = Math.PI / 2;
+						dogMesh.rotation.x = -Math.PI/2;
+						dogRoot.add(dogMesh);
+					}, onProgress, onError );
+			});
+			*/
+//DOG
+//EAGLE
+		dogRoot = new THREE.Group();
+		scene.add(dogRoot);
+		let markerControls2 = new THREEx.ArMarkerControls(arToolkitContext, dogRoot, {
+			type: 'pattern', patternUrl: "../../data/kanji.patt",
+		})
+
+
+
+
+		var threeGLTFLoader = new THREE.GLTF2Loader();
+        var model;
+        threeGLTFLoader.load('../../models/eagle/eagle.glb', function (gltf) {
+            model = gltf.scene.children[0];
+			model.scale.set(0.01,0.01,0.01);
+
+            mixer = new THREE.AnimationMixer(model);
+			console.log( gltf.animations );
+            var action = mixer.clipAction(gltf.animations[0]);
+			action.play();
+			dogRoot.add(model);
+
+
+		}, onProgress, onError)
+
+//EAGLE
+//HUNT
+	huntRoot = new THREE.Group();
+		scene.add(huntRoot);
+		let markerControlsHunt = new THREEx.ArMarkerControls(arToolkitContext, huntRoot, {
+			type: 'pattern', patternUrl: "../../data/letterA.patt",
+		})
+		new THREE.MTLLoader()
+			.setPath( '../../models/hunt/' )
+			.load( 'hunt.mtl', function ( materials ) {
+				materials.preload();
+				new THREE.OBJLoader()
+					.setMaterials( materials )
+					.setPath( '../../models/hunt/' )
+					.load( 'hunt.obj', function ( group ) {
+						huntMesh = group.children[0];
+						huntMesh.material.side = THREE.DoubleSide;
+						huntMesh.position.y = 1;
+						huntMesh.scale.set(5,5,5);
+						huntMesh.rotation.x = -Math.PI/2/2;
+						huntRoot.add(huntMesh);
+					}, onProgress, onError );
+			});
+//HUNT
+//PUZZLE
+puzzleRoot = new THREE.Group();
+		scene.add(puzzleRoot);
+		let markerControlsPuzzle = new THREEx.ArMarkerControls(arToolkitContext, puzzleRoot, {
+			type: 'pattern', patternUrl: "../../data/letterB.patt",
+		})
+		new THREE.MTLLoader()
+			.setPath( '../../models/rubik/' )
+			.load( 'rubik.mtl', function ( materials ) {
+				materials.preload();
+				new THREE.OBJLoader()
+					.setMaterials( materials )
+					.setPath( '../../models/rubik/' )
+					.load( 'rubik.obj', function ( group ) {
+						puzzleMesh = group.children[0];
+						puzzleMesh.material.side = THREE.DoubleSide;
+						puzzleMesh.position.y = 1;
+						puzzleMesh.scale.set(1,1,1);
+						puzzleRoot.add(puzzleMesh);
+					}, onProgress, onError );
+			});
+//PUZZLE
+//QUIZ
+quizRoot = new THREE.Group();
+		scene.add(quizRoot);
+		let markerControlsQuiz = new THREEx.ArMarkerControls(arToolkitContext, quizRoot, {
+			type: 'pattern', patternUrl: "../../data/letterC.patt",
+		})
+		new THREE.MTLLoader()
+			.setPath( '../../models/quiz/' )
+			.load( 'quiz.mtl', function ( materials ) {
+				materials.preload();
+				new THREE.OBJLoader()
+					.setMaterials( materials )
+					.setPath( '../../models/quiz/' )
+					.load( 'quiz.obj', function ( group ) {
+						quizMesh = group.children[0];
+						quizMesh.material.side = THREE.DoubleSide;
+						quizMesh.position.y = 1;
+						quizMesh.scale.set(0.25,0.25,0.25);
+						quizMesh.rotation.x = -Math.PI/2;
+						quizRoot.add(quizMesh);
+					}, onProgress, onError );
+			});
+//QUIZ
+		function onProgress(xhr) { console.log( (xhr.loaded / xhr.total * 100) + '% loaded' ); }
+		function onError(xhr) { console.log( 'An error happened' ); }
+	}
+	
+	var gameScan;
+	const collectedItems = [];
+	
+	function update()
+	{
+		if ( huntRoot.visible )
+		{
+			gameScan = 'hunt';
+			pElement.textContent = 'Starting Collector Hunt';
+		}
+		if ( puzzleRoot.visible )
+		{
+			gameScan = 'puzzle';
+			pElement.textContent = 'Starting Puzzles';
+		}
+		if ( quizRoot.visible )
+		{
+			gameScan = 'quiz';
+			pElement.textContent = 'Starting Quiz';
+		}
+		if ( tigerRoot.visible )
+		{
+			if(gameScan == 'hunt'){
+				if(!collectedItems.includes('tiger')){
+					collectedItems.push('tiger');
+					pElement.textContent = 'ADDED TIGER TO COLLECTION';
+				}
+				else
+					pElement.textContent = 'ALREADY SCANNED TIGER';
+			}
+				
+		}
+		if ( dogRoot.visible )
+		{
+			if(gameScan == 'hunt'){
+				if(!collectedItems.includes('dog')){
+					collectedItems.push('dog');
+					pElement.textContent = 'ADDED DOG TO COLLECTION';
+				}
+				else
+					pElement.textContent = 'ALREADY SCANNED DOG';
+			}
+		}
+		// update artoolkit on every frame
+		if ( arToolkitSource.ready !== false )
+			arToolkitContext.update( arToolkitSource.domElement );
+	}
+	
+	
+	function render()
+	{
+		renderer.render( scene, camera );
+	}
+	
+	
+	function animate()
+	{
+		requestAnimationFrame(animate);
+		//deltaTime = clock.getDelta();
+		//totalTime += deltaTime;
+
+		//
+		if(mixer){
+			mixer.update(0.01);
+		}
+		//
+
+		update();
+		render();
+	}
+
+	
+	</script>
+
+
+</body>
+</html>
