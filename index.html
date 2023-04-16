@@ -6,13 +6,9 @@
 <script src='./jsNew/OBJLoader.js'></script>
 <script src='./jsNew/MTLLoader.js'></script>
 <script src='./jsNew/GLTFLoader.js'></script>
-
-
 <!-- ar.js -->
 <script src='./jsNew/ar.js'></script>
-<!--	UNCOMMENT LINE BELOW FOR 'LIVE PAINTING'	-->
-<!--<script src='./jsNew/ar-threex.js'></script> -->
-
+<!--	UNCOMMENT LINE BELOW FOR 'LIVE PAINTING'-->
 </head>
 
 <video id="eagle-hunt" controls="controls" crossOrigin="anonymous" webkit-playsinline style="display:none">
@@ -149,10 +145,11 @@
 			////////////////////////////////////////////////////////////
 	//TIGER
 	
+
 			tigerRoot = new THREE.Group();
 			scene.add(tigerRoot);
 			let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, tigerRoot, {
-				type: 'pattern', patternUrl: "./data/custom-markers/pattern-tiger.patt",
+				type: 'pattern', patternUrl: "./data/custom-markers/pattern-tiger.patt"
 			})
 
 	
@@ -166,6 +163,7 @@
 				console.log( gltf.animations );
 				var action = mixer.clipAction(gltf.animations[0]);
 				action.play();
+				model.position.set(0, 0, 0);
 				tigerRoot.add(model);
 	
 	
@@ -607,6 +605,7 @@
 					troutRoot.remove(meshAQ);
 					troutRoot.add(fishVidMesh);
 
+					video.playsinline= true;
 					video.play();
 					videoPlay = true;
 				}
