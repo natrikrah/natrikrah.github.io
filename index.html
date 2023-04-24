@@ -423,8 +423,8 @@
         let markerControlsPainting = new THREEx.ArMarkerControls(arToolkitContext, paintRoot, {
 			type : 'nft',
             descriptorsUrl : './images/wollaton/wollaton',
-        })
 		
+        })
 	//PAINTING
 
 			function onProgress(xhr) { console.log( (xhr.loaded / xhr.total * 100) + '% loaded' ); }
@@ -459,6 +459,7 @@
 			var answer = document.getElementById('answer');
 			if(gameScan == 'quiz')
 			{
+				//If answer is a text item then push value
 				if(correctAnswers[qNum]=="white" || correctAnswers[qNum]=="green" || correctAnswers[qNum]=="orangutan" || 
 				correctAnswers[qNum]=="savannah")
 				{
@@ -470,7 +471,7 @@
 				qNum++;
 				pElement.textContent = questions[qNum];
 			}
-			//If questions are finished
+			//If questions are finished instruct player
 			if(qNum == 5){
 				pElement.textContent = "Return to quiz marker for score";
 			}
@@ -553,9 +554,10 @@
 			if ( quizRoot.visible )
 			{
 				gameScan = 'quiz';
+				//display current question in array
 				pElement.textContent = questions[qNum];
 				if(qNum == 5 && score == false){
-					//Count correct answers
+					//Count correct answers comparing attempts to actual
 					var correct =0;
 					for(var i = 0; i<qNum; i++){
 					if(attemptedAnswer[i] == correctAnswers[i])
@@ -563,6 +565,7 @@
 					}
 					console.log(correct);
 
+					//load a text mesh 
 					var loader = new THREE.FontLoader();
 					loader.load( "./fonts/exoBlack.typeface.json", function ( font ) {
 					var textGeometry = new THREE.TextGeometry( "You got " + correct +"/"+ qNum, {
@@ -666,7 +669,8 @@
 
 				var paintMesh = new THREE.Mesh(hallGeom, materialEH);
 				paintMesh.rotation.x = -Math.PI/2;
-				paintMesh.position.set(100,200,0);
+				paintMesh.position.set(100,0,-100);
+
 				paintRoot.add(paintMesh);
 				videoPlay = true;
 				}
