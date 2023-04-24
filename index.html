@@ -11,10 +11,12 @@
 <!--	UNCOMMENT LINE BELOW FOR 'LIVE PAINTING'-->
 </head>
 
+<!--Video of eagle hunting a fish (Scan Eagle -> Scan Trout)-->
 <video id="eagle-hunt" controls="controls" loop="true" crossOrigin="anonymous" playsinline style="display:none">
 	<source src ="./models/eagle/eagle-hunt.mp4" type='video/mp4'>
 </video>
 
+<!--Video of animated painting-->
 <video id="hall" controls="controls" controls loop crossOrigin="anonymous" webkit-playsinline style="display:none">
 	<source src ="./models/wollaton-hall-painting.mp4" type='video/mp4'>
 </video>
@@ -24,7 +26,7 @@
 	<p> DESCRIPTION</p>
 	<div>
 		ANSWER: <input type = "text" name = "answer_box" id="answer">
-		<button type="button" style="float:inline-end;" onclick="checkAnswer()">Continue</button> 
+		<button type="button" style="float:inline-end;" onclick="checkAnswer()">Next</button> 
 		<button type="button" style="float:inline-end;" onclick="playTTS()">Text-to-speech</button> 
 	</div>
   </div>
@@ -40,7 +42,6 @@
 		var scene, camera, renderer;
 		var clock = new THREE.Clock();
 		var arToolkitSource, arToolkitContext;
-		
 		
 		var huntRoot;
 		var huntMesh;
@@ -58,15 +59,8 @@
         var troutModel;
 		var meshAQ;
 
-		//
-		var platformerRoot;
-		var platformMesh;
-		var platformEagle;
-		//
 		var pElement;
 		var mixers = [];
-	
-		var totalTime = 0;
 
 		var lastScan = eagleRoot;
 
@@ -79,13 +73,12 @@
 		{
 
 	
-			//
+			//Display intro message into html
 			pElement = document.querySelector('p');
-			pElement.textContent = 'Hello Player, Welcome to Wollaton Hall: Enigma Estate. Scan a .Game. marker to begin! ';
-			//
-		
+			pElement.textContent = 'Hello Player, Welcome to Wollaton Hall: Enigma Estate. Scan a .Game. marker to begin! ';		
 	
 	
+			//set up camera, lighting, renderer
 			scene = new THREE.Scene();
 		
 			let ambientLight = new THREE.AmbientLight( 0xcccccc, 1.0 );
@@ -106,10 +99,7 @@
 			document.body.appendChild( renderer.domElement );
 	
 	
-			
-			////////////////////////////////////////////////////////////
 			// setup arToolkitSource
-			////////////////////////////////////////////////////////////
 		
 			arToolkitSource = new THREEx.ArToolkitSource({
 				sourceType : 'webcam',
@@ -132,6 +122,7 @@
 				onResize()
 			});
 
+			//Play video if the trout root is visible (ios bug)
 			window.addEventListener('click', function () {
 				if(troutRoot.visible){
 				let v = document.getElementById('eagle-hunt');
@@ -139,9 +130,7 @@
 				}
       		});
 			
-			////////////////////////////////////////////////////////////
 			// setup arToolkitContext
-			////////////////////////////////////////////////////////////	
 		
 			arToolkitContext = new THREEx.ArToolkitContext({
 				cameraParametersUrl: './data/camera_para.dat',
@@ -151,10 +140,7 @@
 				camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
 			});
 		
-			////////////////////////////////////////////////////////////
-			// setup markerRoots
-			////////////////////////////////////////////////////////////
-	//TIGER
+			//TIGER
 	
 
 			tigerRoot = new THREE.Group();
@@ -209,7 +195,6 @@
 			threeGLTFLoader.load('./models/eagle/bald_eagle.glb', function (gltf) {
 				eagleModel = gltf.scene.children[0];
 				eagleModel.scale.set(0.02,0.02,0.02);
-				//eagleModel.position.set(2,-1.5,0);
 				eagleModel.position.set(-3,3,0);
 				defEagleZ = eagleModel.rotation.z;
 
@@ -447,14 +432,19 @@
 		var fishVidMesh;
 
 		//Quiz game logic
+
+		//Questions to be asked
 		var questions = ['What is an example of a Tertiary consumer?',
 						'What colour is the Tiger by the staircase?',
 						'Where does the Tiger live in the marker?',
 						'What colour is the trouts top fin?',
 						'The rainforests where I live are being cleared to grow oil palms, What Am I?']
 
+		//answers to questions
 		var correctAnswers =	[eagleRoot, 'white', 'savannah', 'green', 'orangutan']
+		//answers given
 		var attemptedAnswer = [];
+		//current question
 		var qNum = 0;
 		var score = false;
 		
@@ -463,7 +453,8 @@
 			var answer = document.getElementById('answer');
 			if(gameScan == 'quiz')
 			{
-				if(correctAnswers[qNum]=="white" || correctAnswers[qNum]=="green" || correctAnswers[qNum]=="orangutan")
+				if(correctAnswers[qNum]=="white" || correctAnswers[qNum]=="green" || correctAnswers[qNum]=="orangutan" || 
+				correctAnswers[qNum]=="savannah")
 				{
 					attemptedAnswer.push(answer.value)
 				}
@@ -473,14 +464,26 @@
 				qNum++;
 				pElement.textContent = questions[qNum];
 			}
+			//If questions are finished
 			if(qNum == 5){
 				pElement.textContent = "Return to quiz marker for score";
 			}
 		}
 
+		var roarOnce = false;
 		function playTTS(){
+			//If the last scanned animal was tiger play 'scanned tiger and added to collection'
 			if(lastScan == tigerRoot)
-				document.getElementById("tigerTTS").play();
+			{
+				if(roarOnce==false){
+					//Play tiger roar
+					document.getElementById("tigerAudio").play();
+					roarOnce =true;
+				}
+				else
+					document.getElementById("tigerTTS").play();
+			}
+			//Play intro audio
 			else
 				document.getElementById("introAudio").play();
 		}
@@ -488,7 +491,7 @@
 		function eagleMovement(){
 			if(angle == 'tl')
 			{
-				//top left to bottom right
+				//move eagle top left to bottom right
 				eagleModel.rotation.x = -Math.PI/2/2;
 				eagleModel.rotation.z = Math.PI/2/2;
 				eagleModel.position.y -= 0.01;
@@ -504,7 +507,7 @@
 			}
 			else if(angle == 'tr')
 			{
-				//top right to bottom left
+				//move eagle top right to bottom left
 				eagleModel.position.y -= 0.02;
 				eagleModel.position.x -= 0.01;
 				if(eagleModel.position.y < -3 && eagleModel.position.x < -2)
@@ -518,7 +521,7 @@
 			}
 			else if(angle == 'b')
 			{
-				//bottom to center of screen
+				//move eagle bottom to center of screen
 				eagleModel.position.y += 0.01;
 				if(eagleModel.position.y > -1.5)
 				{
@@ -546,6 +549,7 @@
 				gameScan = 'quiz';
 				pElement.textContent = questions[qNum];
 				if(qNum == 5 && score == false){
+					//Count correct answers
 					var correct =0;
 					for(var i = 0; i<qNum; i++){
 					if(attemptedAnswer[i] == correctAnswers[i])
@@ -569,6 +573,7 @@
 
   					var mesh = new THREE.Mesh( textGeometry, textMaterial );
 
+					//Swap mesh and show score as text
 					quizRoot.remove(quizMesh);
     	    		quizRoot.add(mesh);
 					score = true;
@@ -582,7 +587,6 @@
 					if(!collectedItems.includes('tiger')){
 						collectedItems.push('tiger');
 						pElement.textContent = 'ADDED TIGER TO COLLECTION';
-						document.getElementById("tigerAudio").play();
 					}
 					else
 						pElement.textContent = 'ALREADY SCANNED TIGER';
@@ -591,7 +595,7 @@
 			}
 			if ( eagleRoot.visible )
 			{
-	
+				//Move the eagle
 				eagleMovement();
 				if(gameScan == 'hunt'){
 					if(!collectedItems.includes('eagle')){
@@ -632,7 +636,7 @@
 
 					fishVidMesh = new THREE.Mesh(geometry1, materialEH);
 
-					//swap content
+					//swap mesh from trout to video of eagle
 					troutRoot.remove(troutModel);
 					troutRoot.remove(meshAQ);
 					troutRoot.add(fishVidMesh);
@@ -688,7 +692,6 @@
                     mixers[i].update(deltaTime);
                 }
             }
-			//
 	
 			update();
 			render();
