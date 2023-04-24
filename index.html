@@ -7,8 +7,8 @@
 <script src='./jsNew/MTLLoader.js'></script>
 <script src='./jsNew/GLTFLoader.js'></script>
 <!-- ar.js -->
-<script src='./jsNew/ar.js'></script>
-<!--	UNCOMMENT LINE BELOW FOR 'LIVE PAINTING'-->
+<script src='./jsNew/ar-threex.js'></script>
+<!--	<script src='./jsNew/ar.js'></script>-->
 </head>
 
 <!--Video of eagle hunting a fish (Scan Eagle -> Scan Trout)-->
@@ -17,7 +17,7 @@
 </video>
 
 <!--Video of animated painting-->
-<video id="hall" controls="controls" controls loop crossOrigin="anonymous" webkit-playsinline style="display:none">
+<video id="hall" controls="controls" controls loop crossOrigin="anonymous" playsinline style="display:none" muted="true">
 	<source src ="./models/wollaton-hall-painting.mp4" type='video/mp4'>
 </video>
 
@@ -127,8 +127,12 @@
 			//Play video if the trout root is visible (ios bug)
 			window.addEventListener('click', function () {
 				if(troutRoot.visible){
-				let v = document.getElementById('eagle-hunt');
-      			v.play();
+					let v = document.getElementById('eagle-hunt');
+      				v.play();
+				}
+				if(paintRoot.visible){
+					let v = document.getElementById('hall');
+					v.play();
 				}
       		});
 			
@@ -645,9 +649,7 @@
 					video.playsin= true;
 			
 					videoPlay = true;
-				}
-
-					
+				}	
 				}
 			}
 			if(paintRoot.visible)
@@ -666,7 +668,6 @@
 				paintMesh.rotation.x = -Math.PI/2;
 				paintMesh.position.set(100,200,0);
 				paintRoot.add(paintMesh);
-				video.play();
 				videoPlay = true;
 				}
 			}
