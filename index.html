@@ -162,21 +162,10 @@
 			let geometrysav = new THREE.PlaneBufferGeometry(4,4, 4,4);
 			let loadersav = new THREE.TextureLoader();
 			
-			let texturesav = loadersav.load( './images/savannah.jpg' );
-			
-			if(texturesav.needsPowerOfTwo){
-				console.log("needs2");
-			}
-			else if(!texturesav.needsPowerOfTwo){
-				console.log("no need 2");
-			}
-			else
-			{
-				console.log(texturesav.needsPowerOfTwo);
-				texturesav.needsPowerOfTwo = false;
-			}
+			let texturesav = loadersav.load( './images/savannah.jpg', render );
+			texturesav.needsPowerOfTwo = true;
+
 			console.log("WEBGL2 " + renderer.capabilities.isWebGL2);
-			
 			let materialsa = new THREE.MeshBasicMaterial( { map: texturesav } );
 			var meshsav = new THREE.Mesh( geometrysav, materialsa );
 			meshsav.position.set(0,0,0);
