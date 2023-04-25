@@ -115,6 +115,7 @@
 				{
 					arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
 				}	
+				console.log("RESIZING");
 			}
 	
 			arToolkitSource.init(function onReady(){
@@ -430,6 +431,8 @@
 
 			function onProgress(xhr) { console.log( (xhr.loaded / xhr.total * 100) + '% loaded' ); }
 			function onError(xhr) { console.log( 'An error happened' ); }
+
+			
 		}
 		
 		//Collection game logic
@@ -538,12 +541,16 @@
 			}
 		}
 
-		
-		var side = 1;
+		var startResize = false;
 		function update()
 		{
 			if ( huntRoot.visible )
 			{
+				if(!startResize)
+				{
+				window.dispatchEvent(new Event('resize'));
+				startResize = true;
+				}
 				gameScan = 'hunt';
 				pElement.textContent = 'Starting Collector Hunt...';
 			}
@@ -682,13 +689,11 @@
 				arToolkitContext.update( arToolkitSource.domElement );
 		}
 		
-		
+
 		function render()
 		{
 			renderer.render( scene, camera );
-			
 		}
-		
 		
 		function animate()
 		{
@@ -703,6 +708,8 @@
 	
 			update();
 			render();
+
+		
 		}
 	
 		
