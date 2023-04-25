@@ -169,6 +169,12 @@
 			else if(!texturesav.needsPowerOfTwo){
 				console.log("no need 2");
 			}
+			else
+			{
+				console.log(texturesav.needsPowerOfTwo);
+				texturesav.needsPowerOfTwo = false;
+			}
+
 			console.log("WEBGL2 " + renderer.capabilities.isWebGL2);
 			let materialsa = new THREE.MeshBasicMaterial( { map: texturesav } );
 			var meshsav = new THREE.Mesh( geometrysav, materialsa );
