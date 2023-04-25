@@ -8,14 +8,16 @@
 <script src='./jsNew/GLTFLoader.js'></script>
 <!-- ar.js -->
 <script src='./jsNew/ar.js'></script>
-<!--	UNCOMMENT LINE BELOW FOR 'LIVE PAINTING'-->
+<!--	<script src='./jsNew/ar.js'></script>-->
 </head>
 
+<!--Video of eagle hunting a fish (Scan Eagle -> Scan Trout)-->
 <video id="eagle-hunt" controls="controls" loop="true" crossOrigin="anonymous" playsinline style="display:none">
 	<source src ="./models/eagle/eagle-hunt.mp4" type='video/mp4'>
 </video>
 
-<video id="hall" controls="controls" controls loop crossOrigin="anonymous" webkit-playsinline style="display:none">
+<!--Video of animated painting-->
+<video id="hall" controls="controls" controls loop crossOrigin="anonymous" playsinline style="display:none" muted="true">
 	<source src ="./models/wollaton-hall-painting.mp4" type='video/mp4'>
 </video>
 
@@ -24,8 +26,10 @@
 	<p> DESCRIPTION</p>
 	<div>
 		ANSWER: <input type = "text" name = "answer_box" id="answer">
-		<button type="button" style="float:inline-end;" onclick="checkAnswer()">Continue</button> 
-		<button type="button" style="float:inline-end;" onclick="playTTS()">Text-to-speech</button> 
+	</div>
+	<div>
+	<button type="button" style="float:inline-start;" onclick="checkAnswer()">Next</button> 
+	<button type="button" style="float:inline-start;" onclick="playTTS()">Text-to-speech</button> 
 	</div>
   </div>
   
@@ -41,7 +45,6 @@
 		var clock = new THREE.Clock();
 		var arToolkitSource, arToolkitContext;
 		
-		
 		var huntRoot;
 		var huntMesh;
 		
@@ -51,24 +54,15 @@
 		var quizRoot;
 		var quizMesh;
 
-		var tigerRoot, eagleRoot, crowRoot, troutRoot, alligatorRoot;
+		var tigerRoot, eagleRoot, troutRoot, alligatorRoot;
         var j1, j2, j3, j4;
 		var eagleModel;
 		var defEagleZ;
         var troutModel;
 		var meshAQ;
 
-		//
-		var platformerRoot;
-		var platformMesh;
-		var platformEagle;
-		//
-
-		var name = 'Player';
 		var pElement;
 		var mixers = [];
-	
-		var totalTime = 0;
 
 		var lastScan = eagleRoot;
 
@@ -79,16 +73,14 @@
 		
 		function initialize()
 		{
-		
-			//name = prompt("Enter Your Name:");
+
 	
-			//
+			//Display intro message into html
 			pElement = document.querySelector('p');
-			pElement.textContent = 'Hello ' + name + ', Welcome to Wollaton Hall: Enigma Estate. Scan a .Game. marker to begin! ';
-			//
-		
+			pElement.textContent = 'Hello Player, Welcome to Wollaton Hall: Enigma Estate. Scan a .Game. marker to begin! ';		
 	
 	
+			//set up camera, lighting, renderer
 			scene = new THREE.Scene();
 		
 			let ambientLight = new THREE.AmbientLight( 0xcccccc, 1.0 );
@@ -109,10 +101,7 @@
 			document.body.appendChild( renderer.domElement );
 	
 	
-			
-			////////////////////////////////////////////////////////////
 			// setup arToolkitSource
-			////////////////////////////////////////////////////////////
 		
 			arToolkitSource = new THREEx.ArToolkitSource({
 				sourceType : 'webcam',
@@ -135,54 +124,20 @@
 				onResize()
 			});
 
-			window.addEventListener('mousedown', onCanvasMouseDown);
-
-			function onCanvasMouseDown(event) {
-  				const clickY = event.clientX;
- 				const windowWidth = window.innerWidth;
-  				const isLeft = clickY < windowWidth / 2;
-				if(platformerRoot.visible)
-				{
- 			 	if (isLeft) 
-				{
-					platformEagle.position.set(-2,0,-1);
-  				}
-				else 
-				{
-					platformEagle.position.set(-0.5,0,-1);
- 			 	}
-				}
-			}
-
-			window.addEventListener('touchstart', onCanvasTouchStart);
-
-			function onCanvasTouchStart(event) {
-  				const clickY = event.touches[0].clientX;
-  				const windowWidth = window.innerWidth;
- 				const isLeft = clickY < windowWidth / 2;
-  				if (platformerRoot.visible) 
-				{
-    			if (isLeft) 
-				{
-      				platformEagle.position.set(-2, 0, -1);
-    			} 
-				else 
-				{
-      				platformEagle.position.set(-0.5, 0, -1);
-    			}
-  				}
-			}
-
+			//Play video if the trout root is visible (ios bug)
 			window.addEventListener('click', function () {
 				if(troutRoot.visible){
-				let v = document.getElementById('eagle-hunt');
-      			v.play();
+					let v = document.getElementById('eagle-hunt');
+      				v.play();
+				}
+				//Play nft painting video
+				if(paintRoot.visible){
+					let v = document.getElementById('hall');
+					v.play();
 				}
       		});
 			
-			////////////////////////////////////////////////////////////
 			// setup arToolkitContext
-			////////////////////////////////////////////////////////////	
 		
 			arToolkitContext = new THREEx.ArToolkitContext({
 				cameraParametersUrl: './data/camera_para.dat',
@@ -192,10 +147,7 @@
 				camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
 			});
 		
-			////////////////////////////////////////////////////////////
-			// setup markerRoots
-			////////////////////////////////////////////////////////////
-	//TIGER
+			//TIGER
 	
 
 			tigerRoot = new THREE.Group();
@@ -250,7 +202,6 @@
 			threeGLTFLoader.load('./models/eagle/bald_eagle.glb', function (gltf) {
 				eagleModel = gltf.scene.children[0];
 				eagleModel.scale.set(0.02,0.02,0.02);
-				//eagleModel.position.set(2,-1.5,0);
 				eagleModel.position.set(-3,3,0);
 				defEagleZ = eagleModel.rotation.z;
 
@@ -283,30 +234,6 @@
 			  eagleRoot.add(mesh);
 			});
 	//EAGLE
-	//CROW
-			crowRoot = new THREE.Group();
-			scene.add(crowRoot);
-			let markerControlsCrow = new THREEx.ArMarkerControls(arToolkitContext, crowRoot, {
-				type: 'pattern', patternUrl: "./data/custom-markers/pattern-crow.patt",
-			})	
-	
-			var threeGLTFLoader = new THREE.GLTFLoader();
-			var model;
-			threeGLTFLoader.load('./models/crow/crow.glb', function (gltf) {
-				model = gltf.scene.children[0];
-				model.scale.set(0.03,0.03,0.03);
-				model.position.set(0,0,0);
-
-				var mixer = new THREE.AnimationMixer(model);
-				mixers.push(mixer);
-				console.log( gltf.animations );
-				var action = mixer.clipAction(gltf.animations[0]);
-				action.play();
-				crowRoot.add(model);
-	
-	
-			}, onProgress, onError)
-	//CROW
 	//TROUT
 	troutRoot = new THREE.Group();
 			scene.add(troutRoot);
@@ -374,9 +301,9 @@
 		
         var loader = new THREE.FontLoader();
 		loader.load( "./fonts/exoBlack.typeface.json", function ( font ) {
-			var textGeometry = new THREE.TextGeometry( "Start Scanning Markers \n To Collect Animals", {
+			var textGeometry = new THREE.TextGeometry( "Scan Markers \n Collect Animals", {
         font: font,
-        size: 0.5, 
+        size: 0.2, 
         height: 0.01,
     });
 
@@ -497,51 +424,9 @@
         let markerControlsPainting = new THREEx.ArMarkerControls(arToolkitContext, paintRoot, {
 			type : 'nft',
             descriptorsUrl : './images/wollaton/wollaton',
-        })
 		
+        })
 	//PAINTING
-	//RUNNER
-	
-	platformerRoot = new THREE.Group();
-			scene.add(platformerRoot);
-			let markerControlsRun = new THREEx.ArMarkerControls(arToolkitContext, platformerRoot, {
-				type: 'pattern', patternUrl: "./data/kanji.patt",
-			})
-	
-			let geometryRun = new THREE.PlaneBufferGeometry(1.5,1, 4,4);
-			let loaderRun = new THREE.TextureLoader();
-			let textureRun = loaderRun.load( './images/grass.jpg', render );
-			let materialRun = new THREE.MeshBasicMaterial( { map: textureRun } );
-			platformMesh = new THREE.Mesh( geometryRun, materialRun );
-		//	platformMesh.rotation.x = -Math.PI/2;
-		//	platformMesh.rotation.y = Math.PI;
-			platformMesh.position.set(-1, 0, 0);
-			platformerRoot.add( platformMesh );
-	
-			var threeGLTFLoader = new THREE.GLTFLoader();
-
-			threeGLTFLoader.load('./models/eagle/bald_eagle.glb', function (gltf) {
-				platformEagle = gltf.scene.children[0];
-				platformEagle.scale.set(0.01,0.01,0.01);
-				//platformEagle.position.set(-2,0,-1);
-				platformEagle.position.set(-0.5,0,-1);
-	
-				var mixer = new THREE.AnimationMixer(platformEagle);
-				mixers.push(mixer);
-				console.log( gltf.animations );
-				var action = mixer.clipAction(gltf.animations[0]);
-				action.play();
-
-				platformEagle.rotation.z = Math.PI;
-				platformEagle.rotation.x = Math.PI/2/2-0.3;
-
-				platformerRoot.add(platformEagle);
-	
-	
-			}, onProgress, onError)
-
-	//RUNNER
-
 
 			function onProgress(xhr) { console.log( (xhr.loaded / xhr.total * 100) + '% loaded' ); }
 			function onError(xhr) { console.log( 'An error happened' ); }
@@ -554,28 +439,32 @@
 		var fishVidMesh;
 
 		//Quiz game logic
+
+		//Questions to be asked
 		var questions = ['What is an example of a Tertiary consumer?',
 						'What colour is the Tiger by the staircase?',
-						'I live in trees, caw all the time and will remember your face, what am I?',
+						'Where does the Tiger live in the marker?',
 						'What colour is the trouts top fin?',
 						'The rainforests where I live are being cleared to grow oil palms, What Am I?']
 
-		var correctAnswers =	[eagleRoot, 'white', crowRoot, 'green', 'orangutan']
+		//answers to questions
+		var correctAnswers =	[eagleRoot, 'white', 'savannah', 'green', 'orangutan']
+		//answers given
 		var attemptedAnswer = [];
+		//current question
 		var qNum = 0;
 		var score = false;
 		
 		//
 		function checkAnswer(){
 			var answer = document.getElementById('answer');
-			//gameScan='quiz';
 			if(gameScan == 'quiz')
 			{
-				//ADD CHECK TEXT BOX AND SAVE ANSWER IN ARRAY, UPDATE ANSWER BOX WITH RELEVANT INFO
-				if(correctAnswers[qNum]=="white" || correctAnswers[qNum]=="green" || correctAnswers[qNum]=="orangutan")
+				//If answer is a text item then push value
+				if(correctAnswers[qNum]=="white" || correctAnswers[qNum]=="green" || correctAnswers[qNum]=="orangutan" || 
+				correctAnswers[qNum]=="savannah")
 				{
 					attemptedAnswer.push(answer.value)
-					console.log(answer.value);
 				}
 				else
 					attemptedAnswer.push(eagleRoot)
@@ -583,14 +472,26 @@
 				qNum++;
 				pElement.textContent = questions[qNum];
 			}
+			//If questions are finished instruct player
 			if(qNum == 5){
 				pElement.textContent = "Return to quiz marker for score";
 			}
 		}
 
+		var roarOnce = false;
 		function playTTS(){
+			//If the last scanned animal was tiger play 'scanned tiger and added to collection'
 			if(lastScan == tigerRoot)
-				document.getElementById("tigerTTS").play();
+			{
+				if(roarOnce==false){
+					//Play tiger roar
+					document.getElementById("tigerAudio").play();
+					roarOnce =true;
+				}
+				else
+					document.getElementById("tigerTTS").play();
+			}
+			//Play intro audio
 			else
 				document.getElementById("introAudio").play();
 		}
@@ -598,7 +499,7 @@
 		function eagleMovement(){
 			if(angle == 'tl')
 			{
-				//top left to bottom right
+				//move eagle top left to bottom right
 				eagleModel.rotation.x = -Math.PI/2/2;
 				eagleModel.rotation.z = Math.PI/2/2;
 				eagleModel.position.y -= 0.01;
@@ -614,6 +515,7 @@
 			}
 			else if(angle == 'tr')
 			{
+				//move eagle top right to bottom left
 				eagleModel.position.y -= 0.02;
 				eagleModel.position.x -= 0.01;
 				if(eagleModel.position.y < -3 && eagleModel.position.x < -2)
@@ -627,6 +529,7 @@
 			}
 			else if(angle == 'b')
 			{
+				//move eagle bottom to center of screen
 				eagleModel.position.y += 0.01;
 				if(eagleModel.position.y > -1.5)
 				{
@@ -652,8 +555,10 @@
 			if ( quizRoot.visible )
 			{
 				gameScan = 'quiz';
+				//display current question in array
 				pElement.textContent = questions[qNum];
 				if(qNum == 5 && score == false){
+					//Count correct answers comparing attempts to actual
 					var correct =0;
 					for(var i = 0; i<qNum; i++){
 					if(attemptedAnswer[i] == correctAnswers[i])
@@ -661,11 +566,12 @@
 					}
 					console.log(correct);
 
+					//load a text mesh 
 					var loader = new THREE.FontLoader();
 					loader.load( "./fonts/exoBlack.typeface.json", function ( font ) {
-					var textGeometry = new THREE.TextGeometry( "You got " + correct +"/"+ qNum, {
+					var textGeometry = new THREE.TextGeometry( "You got \n" + correct +"/"+ qNum, {
         			font: font,
-        			size: 0.5, 
+        			size: 0.4, 
         			height: 0.01,
     				});
 
@@ -677,6 +583,7 @@
 
   					var mesh = new THREE.Mesh( textGeometry, textMaterial );
 
+					//Swap mesh and show score as text
 					quizRoot.remove(quizMesh);
     	    		quizRoot.add(mesh);
 					score = true;
@@ -690,7 +597,6 @@
 					if(!collectedItems.includes('tiger')){
 						collectedItems.push('tiger');
 						pElement.textContent = 'ADDED TIGER TO COLLECTION';
-						document.getElementById("tigerAudio").play();
 					}
 					else
 						pElement.textContent = 'ALREADY SCANNED TIGER';
@@ -699,7 +605,7 @@
 			}
 			if ( eagleRoot.visible )
 			{
-	
+				//Move the eagle
 				eagleMovement();
 				if(gameScan == 'hunt'){
 					if(!collectedItems.includes('eagle')){
@@ -708,17 +614,6 @@
 					}
 					else
 						pElement.textContent = 'ALREADY SCANNED EAGLE';
-				}
-			}
-			if ( crowRoot.visible )
-			{
-				if(gameScan == 'hunt'){
-					if(!collectedItems.includes('crow')){
-						collectedItems.push('crow');
-						pElement.textContent = 'ADDED CROW TO COLLECTION';
-					}
-					else
-						pElement.textContent = 'ALREADY SCANNED CROW';
 				}
 			}
 			if ( alligatorRoot.visible )
@@ -751,27 +646,14 @@
 
 					fishVidMesh = new THREE.Mesh(geometry1, materialEH);
 
-					//swap content
+					//swap mesh from trout to video of eagle
 					troutRoot.remove(troutModel);
 					troutRoot.remove(meshAQ);
 					troutRoot.add(fishVidMesh);
-					//video.play();
-					console.log("SWAPPED CONTENT");
 					video.playsin= true;
 			
 					videoPlay = true;
-				}
-				else {
-					/*console.log("SWAPPED BACK");
-					let video = document.getElementById('eagle-hunt');
-					if (video.paused) {
-						//swap content back
-                        troutRoot.remove(fishVidMesh);
-						troutRoot.add(troutModel);
-						troutRoot.add(meshAQ);
-					}*/
-				}
-					
+				}	
 				}
 			}
 			if(paintRoot.visible)
@@ -788,48 +670,13 @@
 
 				var paintMesh = new THREE.Mesh(hallGeom, materialEH);
 				paintMesh.rotation.x = -Math.PI/2;
-				paintMesh.position.set(100,200,0);
+				paintMesh.position.set(100,0,-100);
+
 				paintRoot.add(paintMesh);
-				video.play();
 				videoPlay = true;
 				}
 			}
-			
-			if ( platformerRoot.visible )
-			{
-				
-				platformMesh.position.y -= 0.01;
-				if(platformMesh.position.y < 0)
-				{
-					if(side == 0)
-					{
-						if(platformEagle.position.x == -0.5)
-						{
-							pElement.textContent = 'GAME OVER';
-						}
-					}
-					else if(side == 1)
-					{
-						if(platformEagle.position.x == -2)
-						{
-							pElement.textContent = 'GAME OVER';
-						}
-					}
-					side = Math.floor(Math.random() * 2);
-					console.log(side);
-					if(side == 0)
-					{
-						platformMesh.position.x = 0.5;
-					}
-					else if(side == 1)
-					{
-						platformMesh.position.x = -1;
-					}
 
-					platformMesh.position.y = 5;
-				}
-					
-			}
 			// update artoolkit on every frame
 			if ( arToolkitSource.ready !== false )
 				arToolkitContext.update( arToolkitSource.domElement );
@@ -845,22 +692,14 @@
 		
 		function animate()
 		{
-			requestAnimationFrame(animate);
-			var deltaTime = clock.getDelta();
-			//Unused timer code
-			//totalTime = totalTime + deltaTime;
-			//const minutes = Math.floor(totalTime / 60);
-			//const seconds = Math.floor(totalTime - minutes * 60);
-			//console.log("Time elapsed is :" + minutes + " " + seconds)
-	
-			
+			requestAnimationFrame(animate);			
 			//Update all of the animation mixers
+			var deltaTime = clock.getDelta();
 			if (mixers.length > 0) {
                 for (var i = 0; i < mixers.length; i++) {
                     mixers[i].update(deltaTime);
                 }
             }
-			//
 	
 			update();
 			render();
