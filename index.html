@@ -21,6 +21,8 @@
 	<source src ="./models/wollaton-hall-painting.mp4" type='video/mp4'>
 </video>
 
+<img id="savannah" src="./images/savannah.jpg" alt="savannah" style="display:none">
+
 
 <div style="position: absolute; bottom: 0; width: 100%; background-color: lightblue; padding-bottom: 16px; padding-left: 16px;">
 	<p> DESCRIPTION</p>
@@ -159,7 +161,10 @@
 
 			let geometrysav = new THREE.PlaneBufferGeometry(4,4, 4,4);
 			let loadersav = new THREE.TextureLoader();
-			let texturesav = loadersav.load( './images/savannah.jpg', render );
+			//let texturesav = loadersav.load( './images/savannah.jpg', render );
+			let myImage = document.getElementById('savannah');
+			let texturesav = new THREE.Texture(myImage);
+			texturesav.needsUpdate = true;
 			let materialsa = new THREE.MeshBasicMaterial( { map: texturesav } );
 			var meshsav = new THREE.Mesh( geometrysav, materialsa );
 			meshsav.position.set(0,0,0);
