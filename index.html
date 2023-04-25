@@ -222,7 +222,7 @@
 			loader.load( "./fonts/exoBlack.typeface.json", function ( font ) {
 			var textGeometry = new THREE.TextGeometry( "Golden Eagle \n Aquila chrysaetos", {
         	font: font,
-        	size: 0.5, 
+        	size: 0.2, 
         	height: 0.01,
     		});
 
@@ -349,7 +349,7 @@
 	quizRoot = new THREE.Group();
 			scene.add(quizRoot);
 			let markerControlsQuiz = new THREEx.ArMarkerControls(arToolkitContext, quizRoot, {
-				type: 'pattern', patternUrl: "./data/hiro.patt",
+				type: 'pattern', patternUrl: "./data/letterC.patt",
 			})
 
 			var quizMTLloader = new THREE.MTLLoader()
