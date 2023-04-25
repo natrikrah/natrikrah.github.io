@@ -491,6 +491,7 @@
 			//If the last scanned animal was tiger play 'scanned tiger and added to collection'
 			if(lastScan == tigerRoot)
 			{
+				console.log("lastScan");
 				if(roarOnce==false){
 					//Play tiger roar
 					document.getElementById("tigerAudio").play();
@@ -546,16 +547,11 @@
 			}
 		}
 
-		var startResize = false;
 		function update()
 		{
 			if ( huntRoot.visible )
 			{
-				if(!startResize)
-				{
-				window.dispatchEvent(new Event('resize'));
-				startResize = true;
-				}
+				
 				gameScan = 'hunt';
 				pElement.textContent = 'Starting Collector Hunt...';
 			}
