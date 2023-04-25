@@ -161,10 +161,10 @@
 
 			let geometrysav = new THREE.PlaneBufferGeometry(4,4, 4,4);
 			let loadersav = new THREE.TextureLoader();
-			//let texturesav = loadersav.load( './images/savannah.jpg', render );
-			let myImage = document.getElementById('savannah');
-			let texturesav = new THREE.Texture(myImage);
-			texturesav.needsUpdate = true;
+			
+			
+			let texturesav = loadersav.load( './images/savannah.jpg', render );
+			console.log("WEBGL2 " + renderer.capabilities.isWebGL2);
 			let materialsa = new THREE.MeshBasicMaterial( { map: texturesav } );
 			var meshsav = new THREE.Mesh( geometrysav, materialsa );
 			meshsav.position.set(0,0,0);
